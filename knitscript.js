@@ -1,17 +1,15 @@
 //global variables set to hide
+
 var yWidth = 0;
 var nWidth = 0;
 var yColor = 0;
 var start = false; //p5 draw
-var stringOut;
 
 function init() {
 	//create arrays for knitting options
 	var needles = document.getElementsByClassName('needle');
 	var yarns = document.getElementsByClassName('yarn');
 	var colors = document.getElementsByClassName('color');
-	var stringIn = document.getElementById('input');
-	//console.log(stringIn);
 
 //NEEDLES
 
@@ -21,7 +19,7 @@ function init() {
 	}
 
 	//set nWidth
-	function needleSelect(e) {
+	function needleSelect(e){
 		var tag = e.target;
 		//if click on li
 		if (tag.tagName == 'LI') {
@@ -36,17 +34,26 @@ function init() {
 			nWidth = tag.ownerSVGElement.width.animVal.value;
 		}
 
+		//console.log(nWidth);
+
 		//remove selected from all other needles
 		var needles1 = document.getElementsByClassName('needle');
 		for(var i = 0; i < needles1.length; i++) {
 			if (needles1[i].classList.contains('selected')){
 				needles1[i].classList.remove('selected');
-			}		
+			}
+			if (!needles1[i].classList.contains('inactive')){
+				needles1[i].classList.add('inactive');
+			}
+		}
+
+		if (tag.classList.contains('inactive')){
+			needles1[i].classList.remove('inactive');
 		}
 		tag.classList.add('selected');
 
-		//console.log(nWidth);
-		console.log(tag.classList);
+		console.log(nWidth);
+		//console.log(tag.classList);
 
 	};
 
@@ -73,7 +80,7 @@ function init() {
 			yWidth = tag.ownerSVGElement.width.animVal.value;
 		}
 		
-		//console.log(yWidth);
+		console.log(yWidth);
 
 	};
 
@@ -87,17 +94,18 @@ function init() {
 	//set yColor
 	function colorSelect(e){
 		var tag = e.target;
-		var yColorhex = tag.attributes.fill.value;		
-		yColor = hexToRgb(yColorhex);
+		// var yColorhex = tag.attributes.fill.value;		
+		// yColor = hexToRgb(yColorhex);
+		// console.log(yColor);
+		var yColorComputed = window.getComputedStyle(tag, null).getPropertyValue("background-color");
+		yColorComputed = yColorComputed.replace("rgb(","");
+		yColorComputed = yColorComputed.replace(")","");
+		var yColor = yColorComputed.split(",");
+		var r = parseInt(yColor[0]);
+		var g = parseInt(yColor[1]);
+		var b = parseInt(yColor[2]);
 		console.log(yColor);
 	};
-
-//TEXT INPUT
-	//cursor
-	var inbox = document.getElementById('input').addEventListener('focus', function(e){
-		showhide('cursor');
-	});
-	
 
 //BUTTON
 
@@ -107,17 +115,16 @@ function init() {
 		showhide('p5can');
 		showhide('content');
 		showhide('back');
-		stringOut = ABC.toBinary(stringIn.value);
 		start = true;
-
 	} );
-
 	
 	//show/hide divs by changing computed display value
 	function showhide(id) {
 		var div = document.getElementById(id);
 		var sty = getComputedStyle(div);
+		console.log(sty.display);
 		if (sty.display == 'none'){
+			console.log("woo");
 			div.style.display = 'block';
 		} else {
 			div.style.display = 'none';
@@ -126,7 +133,7 @@ function init() {
 
 }; //end init function
 
-//convert hex to rgb
+//Convert hex to rgb
 
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -135,24 +142,6 @@ function hexToRgb(hex) {
         g: parseInt(result[2], 16),
         b: parseInt(result[3], 16)
     	} : null;
-};
-
-//convert ASCII to Binary
-var ABC = {
-  toAscii: function(bin) {
-    return bin.replace(/\s*[01]{8}\s*/g, function(bin) {
-      return String.fromCharCode(parseInt(bin, 2))
-    })
-  },
-  toBinary: function(str, spaceSeparatedOctets) {
-    return str.replace(/[\s\S]/g, function(str) {
-      str = ABC.zeroPad(str.charCodeAt().toString(2));
-      return !1 == spaceSeparatedOctets ? str : str + " "
-    })
-  },
-  zeroPad: function(num) {
-    return "00000000".slice(String(num).length) + num
-  }
 };
 
 
@@ -166,25 +155,14 @@ function setup(){
 	can = createCanvas(windowWidth, windowHeight);
 	can.parent('p5can');
 	s = new Needle();
-	console.log(nWidth, yWidth, yColor);
-
+	var c = yColor;
+	console.log(nWidth, yWidth, c);
 };
 
 function draw() {
-	//starts loop and ends based on screen height
-	if (start == true) {
-	console.log(stringOut.length);
-		for (var i = 0; i < stringOut.length; i++) {		
-			
-			if (stringOut[i] == 0){
-				s.k();
-			}
-			if (stringOut[i] == 1){
-				s.p();
-			}
-			s.move();					
-		}
-		start = false;	
+	if (start == true && s.yLoc < (height - nWidth)) {
+		s.k();
+		s.move();		
 	}
 };
 
@@ -195,20 +173,11 @@ function Needle(){
 
   this.k = function() {
     noFill();
-    stroke(yColor.r, yColor.g, yColor.b, 100);
+    stroke(r, g, b, 100);
     strokeWeight(yWidth); 
     ellipse(this.xLoc, this.yLoc, nWidth, nWidth);
-    console.log(this.xLoc + " " + this.yLoc);
+    //console.log(this.xLoc + " " + this.yLoc);
   }
-
-  this.p = function(){
-  	noFill();
-    stroke(yColor.r, yColor.g, yColor.b, 100);
-    strokeWeight(yWidth); 
-    rect((this.xLoc - (nWidth/2)), (this.yLoc - (nWidth/2)), nWidth, nWidth);
-    console.log(this.xLoc + " " + this.yLoc);
-  }
-
 
   this.move = function() {
   	this.xLoc += (nWidth/2+yWidth);
@@ -220,6 +189,3 @@ function Needle(){
 } //end needle class
 
 window.addEventListener('load', init);
-
-
-

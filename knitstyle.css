@@ -116,7 +116,10 @@ a {
 	padding: 0 0 2rem 0;
 	float: left;
 }
-
+.inactive {
+	color: #444444;
+	font-weight: normal;
+}
 .selected {
 	color: #9933ff;
 	font-weight: bold;

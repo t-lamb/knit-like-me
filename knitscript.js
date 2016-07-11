@@ -94,16 +94,8 @@ function init() {
 	//set yColor
 	function colorSelect(e){
 		var tag = e.target;
-		// var yColorhex = tag.attributes.fill.value;		
-		// yColor = hexToRgb(yColorhex);
-		// console.log(yColor);
-		var yColorComputed = window.getComputedStyle(tag, null).getPropertyValue("background-color");
-		yColorComputed = yColorComputed.replace("rgb(","");
-		yColorComputed = yColorComputed.replace(")","");
-		var yColor = yColorComputed.split(",");
-		var r = parseInt(yColor[0]);
-		var g = parseInt(yColor[1]);
-		var b = parseInt(yColor[2]);
+		var yColorhex = tag.dataset.background;
+		yColor = hexToRgb(yColorhex);
 		console.log(yColor);
 	};
 
@@ -173,7 +165,7 @@ function Needle(){
 
   this.k = function() {
     noFill();
-    stroke(r, g, b, 100);
+    stroke(yColor.r, yColor.g, yColor.b, 100);
     strokeWeight(yWidth); 
     ellipse(this.xLoc, this.yLoc, nWidth, nWidth);
     //console.log(this.xLoc + " " + this.yLoc);

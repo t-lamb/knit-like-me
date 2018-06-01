@@ -138,6 +138,7 @@ li {
 	width: 16%;
 	padding: 0 0 1rem 0;
 	color: #444444;
+	cursor: pointer;
 }
 svg {
 	padding: 1rem 0 .5rem 0;
